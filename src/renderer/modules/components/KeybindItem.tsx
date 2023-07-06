@@ -199,11 +199,29 @@ export default class KeybindRecorder extends React.Component<KeybindProps, Keybi
     ) {
       this.setState((prevState) => ({
         recordedKeybind: isEditing
-          ? [{ altKey: event.altKey, code: event.code, ctrlKey: event.ctrlKey, key: event.key, keyCode: event.keyCode, metaKey: event.metaKey, shiftKey: event.shiftKey }]
+          ? [
+              {
+                altKey: event.altKey,
+                code: event.code,
+                ctrlKey: event.ctrlKey,
+                key: event.key,
+                keyCode: event.keyCode,
+                metaKey: event.metaKey,
+                shiftKey: event.shiftKey,
+              },
+            ]
           : [
-            ...prevState.recordedKeybind,
-            { altKey: event.altKey, code: event.code, ctrlKey: event.ctrlKey, key: event.key, keyCode: event.keyCode, metaKey: event.metaKey, shiftKey: event.shiftKey },
-          ],
+              ...prevState.recordedKeybind,
+              {
+                altKey: event.altKey,
+                code: event.code,
+                ctrlKey: event.ctrlKey,
+                key: event.key,
+                keyCode: event.keyCode,
+                metaKey: event.metaKey,
+                shiftKey: event.shiftKey,
+              },
+            ],
         currentlyPressed: [...prevState.currentlyPressed, event.keyCode!],
       }));
       if (isEditing) {
@@ -256,12 +274,12 @@ export default class KeybindRecorder extends React.Component<KeybindProps, Keybi
           <Text.H4 className="text text-truncate">
             {recordedKeybind?.length
               ? recordedKeybind
-                ?.map((rk) =>
-                  rk?.code?.toLowerCase()?.includes("right")
-                    ? `RIGHT ${rk?.key?.toUpperCase()}`
-                    : rk?.key?.toUpperCase(),
-                )
-                .join(" + ")
+                  ?.map((rk) =>
+                    rk?.code?.toLowerCase()?.includes("right")
+                      ? `RIGHT ${rk?.key?.toUpperCase()}`
+                      : rk?.key?.toUpperCase(),
+                  )
+                  .join(" + ")
               : this.props.placeholder ?? "No Keybind Set"}
           </Text.H4>
           <Buttons
