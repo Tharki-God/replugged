@@ -38,6 +38,7 @@
     "LOCALAPPDATA",
     "logname",
     "Millis",
+    "notif",
     "notrack",
     "outfile",
     "popout",
