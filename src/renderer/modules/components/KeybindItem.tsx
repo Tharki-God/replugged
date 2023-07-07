@@ -1,4 +1,4 @@
-import { React } from "@common";
+import  React  from "@common/react";
 
 import { FormItem, Text } from ".";
 import { KeyboardEvent } from "electron";
