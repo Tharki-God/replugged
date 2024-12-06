@@ -31,7 +31,10 @@ const mapNative = (
     const methods = nativeList[pluginId];
     const map = {} as Record<string, (...args: unknown[]) => Promise<unknown>>;
     for (const methodName in methods) {
-      map[methodName] = (...args: unknown[]) => ipcRenderer.invoke(methods[methodName], ...args);
+      map[methodName] = (...args: unknown[]) =>
+        ipcRenderer.invoke(methods[methodName], ...args).catch((err) => {
+          throw new Error(err.message.split(": Error: ")[1]);
+        });
     }
     pluginNatives[pluginId] = map;
   }

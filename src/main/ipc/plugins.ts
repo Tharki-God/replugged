@@ -101,25 +101,31 @@ ipcMain.handle(
     const plugins = await listPlugins();
 
     return plugins.reduce((acc: Record<string, Record<string, string>>, plugin) => {
-      if (!plugin.manifest.native || disabled.includes(plugin.manifest.id)) return acc;
-      const nativePath = join(PLUGINS_DIR, plugin.path, plugin.manifest.native);
-      if (!nativePath.startsWith(`${PLUGINS_DIR}${sep}`)) {
-        // Ensure file changes are restricted to the base path
-        throw new Error("Invalid plugin name");
+      try {
+        if (!plugin.manifest.native || disabled.includes(plugin.manifest.id)) return acc;
+        const nativePath = join(PLUGINS_DIR, plugin.path, plugin.manifest.native);
+        if (!nativePath.startsWith(`${PLUGINS_DIR}${sep}`)) {
+          // Ensure file changes are restricted to the base path
+          throw new Error("Invalid plugin name");
+        }
+
+        const entries = Object.entries<(...args: unknown[]) => unknown>(require(nativePath));
+        if (!entries.length) return acc;
+
+        const mappings: Record<string, string> = {};
+
+        for (const [methodName, method] of entries) {
+          const key = `Replugged_Plugin_Native_[${plugin.manifest.id}]_${methodName}`;
+          ipcMain.handle(key, (_, ...args) => method(...args) /* For easy type when importing */);
+          mappings[methodName] = key;
+        }
+        acc[plugin.manifest.id] = mappings;
+        return acc;
+      } catch (e) {
+        console.error(`Error Loading Plugin Native`, plugin.manifest);
+        console.error(e);
+        return acc;
       }
-
-      const entries = Object.entries<(...args: unknown[]) => unknown>(require(nativePath));
-      if (!entries.length) return acc;
-
-      const mappings: Record<string, string> = {};
-
-      for (const [methodName, method] of entries) {
-        const key = `Replugged_Plugin_Native_[${plugin.manifest.id}]_${methodName}`;
-        ipcMain.handle(key, (_, ...args) => method(...args) /* For easy type when importing */);
-        mappings[methodName] = key;
-      }
-      acc[plugin.manifest.id] = mappings;
-      return acc;
     }, {});
   },
 );
